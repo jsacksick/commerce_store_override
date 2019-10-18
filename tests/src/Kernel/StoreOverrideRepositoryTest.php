@@ -133,4 +133,23 @@ class StoreOverrideRepositoryTest extends CommerceKernelTestBase {
     $this->assertNull($loaded_store_override);
   }
 
+  /**
+   * @covers ::save
+   */
+  public function testTimestamps() {
+    $definition = [
+      'data' => [
+        'title' => ['value' => 'This is a custom title'],
+      ],
+      'status' => TRUE,
+    ];
+
+    $store_override = StoreOverride::create($this->store, $this->products[0], $definition);
+    $this->assertNull($store_override->getCreatedTime());
+    $this->repository->save($store_override);
+
+    $loaded_store_override = $this->repository->load($this->store, $this->products[0]);
+    $this->assertEquals(\Drupal::time()->getRequestTime(), $loaded_store_override->getCreatedTime());
+  }
+
 }

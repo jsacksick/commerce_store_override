@@ -3,6 +3,7 @@
 namespace Drupal\commerce_store_override;
 
 use Drupal\commerce_store\Entity\StoreInterface;
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Language\LanguageInterface;
@@ -17,13 +18,23 @@ class StoreOverrideRepository implements StoreOverrideRepositoryInterface {
   protected $connection;
 
   /**
+   * The time.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
    * Constructs a new StoreOverrideRepository object.
    *
    * @param \Drupal\Core\Database\Connection $connection
-   *   The database connection to use.
+   *   The database connection.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time.
    */
-  public function __construct(Connection $connection) {
+  public function __construct(Connection $connection, TimeInterface $time) {
     $this->connection = $connection;
+    $this->time = $time;
   }
 
   /**
@@ -82,6 +93,9 @@ class StoreOverrideRepository implements StoreOverrideRepositoryInterface {
     $definition = $store_override->toArray();
     $definition['data'] = json_encode($definition['data']);
     $definition['status'] = (int) $definition['status'];
+    if (empty($definition['created'])) {
+      $definition['created'] = $this->time->getRequestTime();
+    }
 
     $key_names = ['store_id', 'entity_id', 'entity_type', 'langcode'];
     $keys = array_intersect_key($definition, array_combine($key_names, $key_names));

@@ -72,14 +72,6 @@ class StoreOverrideTest extends CommerceKernelTestBase {
           'store_id' => 2,
           'entity_id' => 30,
           'entity_type' => 'commerce_product',
-        ],
-        'Missing required property created',
-      ],
-      [
-        [
-          'store_id' => 2,
-          'entity_id' => 30,
-          'entity_type' => 'commerce_product',
           'data' => 'INVALID',
           'created' => 1573344000,
         ],
@@ -105,7 +97,6 @@ class StoreOverrideTest extends CommerceKernelTestBase {
       'store_id' => $this->store->id(),
       'entity_id' => 30,
       'entity_type' => 'commerce_product',
-      'created' => 1570665600,
     ];
     $store_override = new StoreOverride($definition);
     $this->assertEquals($definition['store_id'], $store_override->getStoreId());
@@ -114,7 +105,7 @@ class StoreOverrideTest extends CommerceKernelTestBase {
     $this->assertEquals(LanguageInterface::LANGCODE_DEFAULT, $store_override->getLangcode());
     $this->assertEquals([], $store_override->getData());
     $this->assertFalse($store_override->getStatus());
-    $this->assertEquals($definition['created'], $store_override->getCreatedTime());
+    $this->assertNull($store_override->getCreatedTime());
 
     $definition = [
       'store_id' => $this->store->id(),

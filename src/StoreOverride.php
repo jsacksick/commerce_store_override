@@ -67,7 +67,7 @@ final class StoreOverride {
    *   The definition.
    */
   public function __construct(array $definition) {
-    foreach (['store_id', 'entity_id', 'entity_type', 'created'] as $required_property) {
+    foreach (['store_id', 'entity_id', 'entity_type'] as $required_property) {
       if (empty($definition[$required_property])) {
         throw new \InvalidArgumentException(sprintf('Missing required property %s.', $required_property));
       }
@@ -82,11 +82,11 @@ final class StoreOverride {
     $this->langcode = $definition['langcode'] ?? LanguageInterface::LANGCODE_DEFAULT;
     $this->data = $definition['data'] ?? [];
     $this->status = !empty($definition['status']);
-    $this->created = $definition['created'];
+    $this->created = $definition['created'] ?? NULL;
   }
 
   /**
-   * Creates a store override from the given store and entity.
+   * Creates a StoreOverride object from the given store and entity.
    *
    * @param \Drupal\commerce_store\Entity\StoreInterface $store
    *   The store.
@@ -172,8 +172,9 @@ final class StoreOverride {
   /**
    * Gets the timestamp when the override was created.
    *
-   * @return int
-   *   The timestamp when the override was created.
+   * @return int|null
+   *   The timestamp when the override was created, or NULL if the timestamp
+   *   should be generated when the override is saved.
    */
   public function getCreatedTime() {
     return $this->created;

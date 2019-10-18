@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update functions for Store Override.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_store_override_schema() {
+  $schema['commerce_store_override'] = [
+    'description' => 'Stores per-store overrides.',
+    'fields' => [
+      'store_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The store ID.',
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The entity_id of the overridden entity.',
+      ],
+      'entity_type' => [
+        'type' => 'varchar_ascii',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The entity_type of the overridden entity.',
+      ],
+      'langcode' => [
+        'type' => 'varchar_ascii',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The language code of the overridden entity.',
+      ],
+      'data' => [
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'description' => 'The override data, stored as JSON.',
+      ],
+      'status' => [
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'description' => 'The status of the override.',
+      ],
+      'created' => [
+        'type' => 'int',
+        'size' => 'big',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp when the override was created.',
+      ],
+    ],
+    'primary key' => ['store_id', 'entity_id', 'entity_type', 'langcode'],
+  ];
+
+  return $schema;
+}

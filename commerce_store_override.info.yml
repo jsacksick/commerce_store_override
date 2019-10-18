@@ -1,0 +1,8 @@
+name: Commerce Store Override
+type: module
+description: 'Provides per-store overrides of Commerce content.'
+package: Commerce (contrib)
+core: 8.x
+dependencies:
+  - commerce:commerce_store
+  - commerce:commerce_product

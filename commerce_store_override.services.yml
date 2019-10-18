@@ -1,0 +1,4 @@
+services:
+  commerce_store_override.repository:
+    class: Drupal\commerce_store_override\StoreOverrideRepository
+    arguments: ['@database']

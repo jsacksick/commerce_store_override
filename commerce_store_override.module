@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Provides per-store overrides of Commerce content.
+ */
+
+use Drupal\commerce_store\Entity\StoreInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Gets the target entity type IDs.
+ *
+ * @return string[]
+ *   The entity type IDs.
+ */
+function commerce_store_override_entity_type_ids() {
+  return ['commerce_product'];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function commerce_store_override_commerce_store_delete(StoreInterface $store) {
+  /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
+  $repository = \Drupal::service('commerce_store_override.repository');
+  $repository->deleteByStore($store);
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function commerce_store_override_entity_delete(EntityInterface $entity) {
+  if (in_array($entity->getEntityTypeId(), commerce_store_override_entity_type_ids())) {
+    /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
+    $repository = \Drupal::service('commerce_store_override.repository');
+    $repository->deleteByEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function commerce_store_override_entity_translation_delete(EntityInterface $translation) {
+  if (in_array($translation->getEntityTypeId(), commerce_store_override_entity_type_ids())) {
+    /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
+    $repository = \Drupal::service('commerce_store_override.repository');
+    $repository->deleteByEntity($translation);
+  }
+}

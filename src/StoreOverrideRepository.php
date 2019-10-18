@@ -121,7 +121,7 @@ class StoreOverrideRepository implements StoreOverrideRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function deleteByStore(StoreInterface $store) {
+  public function deleteMultipleByStore(StoreInterface $store) {
     $this->connection->delete('commerce_store_override')
       ->condition('store_id', $store->id())
       ->execute();
@@ -130,7 +130,7 @@ class StoreOverrideRepository implements StoreOverrideRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function deleteByEntity(ContentEntityInterface $entity) {
+  public function deleteMultipleByEntity(ContentEntityInterface $entity) {
     $query = $this->connection->delete('commerce_store_override');
     $query
       ->condition('entity_id', $entity->id())

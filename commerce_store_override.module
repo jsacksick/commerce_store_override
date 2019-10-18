@@ -24,7 +24,7 @@ function commerce_store_override_entity_type_ids() {
 function commerce_store_override_commerce_store_delete(StoreInterface $store) {
   /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
   $repository = \Drupal::service('commerce_store_override.repository');
-  $repository->deleteByStore($store);
+  $repository->deleteMultipleByStore($store);
 }
 
 /**
@@ -34,7 +34,7 @@ function commerce_store_override_entity_delete(EntityInterface $entity) {
   if (in_array($entity->getEntityTypeId(), commerce_store_override_entity_type_ids())) {
     /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
     $repository = \Drupal::service('commerce_store_override.repository');
-    $repository->deleteByEntity($entity);
+    $repository->deleteMultipleByEntity($entity);
   }
 }
 
@@ -45,6 +45,6 @@ function commerce_store_override_entity_translation_delete(EntityInterface $tran
   if (in_array($translation->getEntityTypeId(), commerce_store_override_entity_type_ids())) {
     /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
     $repository = \Drupal::service('commerce_store_override.repository');
-    $repository->deleteByEntity($translation);
+    $repository->deleteMultipleByEntity($translation);
   }
 }

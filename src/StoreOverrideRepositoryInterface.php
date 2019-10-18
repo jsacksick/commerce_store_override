@@ -53,7 +53,7 @@ interface StoreOverrideRepositoryInterface {
    * @param \Drupal\commerce_store\Entity\StoreInterface $store
    *   The store.
    */
-  public function deleteByStore(StoreInterface $store);
+  public function deleteMultipleByStore(StoreInterface $store);
 
   /**
    * Delete all store overrides for the given entity.
@@ -64,6 +64,6 @@ interface StoreOverrideRepositoryInterface {
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity.
    */
-  public function deleteByEntity(ContentEntityInterface $entity);
+  public function deleteMultipleByEntity(ContentEntityInterface $entity);
 
 }

@@ -65,8 +65,8 @@ class StoreOverrideRepositoryTest extends CommerceKernelTestBase {
    * @covers ::load
    * @covers ::loadMultipleByEntity
    * @covers ::delete
-   * @covers ::deleteByStore
-   * @covers ::deleteByEntity
+   * @covers ::deleteMultipleByStore
+   * @covers ::deleteMultipleByEntity
    */
   public function testRepository() {
     $second_store = $this->createStore('Second store', 'admin@example.com');
@@ -116,13 +116,13 @@ class StoreOverrideRepositoryTest extends CommerceKernelTestBase {
     $loaded_store_overrides = $this->repository->loadMultipleByEntity($this->products[1]);
     $this->assertEquals([$store_overrides[2], $store_overrides[3]], $loaded_store_overrides);
 
-    $this->repository->deleteByStore($second_store);
+    $this->repository->deleteMultipleByStore($second_store);
     $loaded_store_overrides = $this->repository->loadMultipleByEntity($this->products[0]);
     $this->assertEquals([$store_overrides[0]], $loaded_store_overrides);
     $loaded_store_overrides = $this->repository->loadMultipleByEntity($this->products[1]);
     $this->assertEquals([$store_overrides[2]], $loaded_store_overrides);
 
-    $this->repository->deleteByEntity($this->products[0]);
+    $this->repository->deleteMultipleByEntity($this->products[0]);
     $loaded_store_overrides = $this->repository->loadMultipleByEntity($this->products[0]);
     $this->assertEmpty($loaded_store_overrides);
     $loaded_store_overrides = $this->repository->loadMultipleByEntity($this->products[1]);

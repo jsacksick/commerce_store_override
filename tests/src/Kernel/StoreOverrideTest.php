@@ -39,7 +39,8 @@ class StoreOverrideTest extends CommerceKernelTestBase {
    * @dataProvider invalidDefinitionProvider
    */
   public function testInvalidConstruct($definition, $message) {
-    $this->setExpectedException(\InvalidArgumentException::class, $message);
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage($message);
     new StoreOverride($definition);
   }
 
@@ -66,6 +67,14 @@ class StoreOverrideTest extends CommerceKernelTestBase {
           'entity_id' => 30,
         ],
         'Missing required property entity_type',
+      ],
+      [
+        [
+          'store_id' => 2,
+          'entity_id' => 30,
+          'entity_type' => 'commerce_promotion',
+        ],
+        'Unsupported entity type commerce_promotion',
       ],
       [
         [
@@ -151,6 +160,47 @@ class StoreOverrideTest extends CommerceKernelTestBase {
     $this->assertEquals('commerce_product', $store_override->getEntityTypeId());
     $this->assertEquals(LanguageInterface::LANGCODE_DEFAULT, $store_override->getLangcode());
     $this->assertEquals($definition['created'], $store_override->getCreatedTime());
+  }
+
+  /**
+   * Tests applying a store override to an entity.
+   *
+   * @covers ::apply
+   */
+  public function testApply() {
+    $product = Product::create([
+      'type' => 'default',
+      'title' => 'Test',
+      'body' => [
+        'value' => 'Test body',
+        'format' => 'basic_html',
+      ],
+    ]);
+    $product->save();
+
+    $definition = [
+      'data' => [
+        'title' => [
+          'value' => 'Overridden test',
+        ],
+        'body' => [
+          'value' => 'Overridden body',
+          'format' => 'basic_html',
+        ],
+        'invalid_field' => [
+          'value' => 'Irrelevant',
+        ],
+      ],
+    ];
+    $store_override = StoreOverride::create($this->store, $product, $definition);
+    $store_override->apply($product);
+    $this->assertEquals('Overridden test', $product->label());
+    $this->assertEquals('Overridden body', $product->get('body')->value);
+
+    // Confirm that the override can't be applied to a different entity type.
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Unexpected entity type commerce_store');
+    $store_override->apply($this->store);
   }
 
 }

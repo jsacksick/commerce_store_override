@@ -12,6 +12,13 @@ use Drupal\Core\Language\LanguageInterface;
 final class StoreOverride {
 
   /**
+   * The supported entity types.
+   *
+   * @var string[]
+   */
+  const SUPPORTED_ENTITY_TYPES = ['commerce_product'];
+
+  /**
    * The store ID.
    *
    * @var int
@@ -71,6 +78,9 @@ final class StoreOverride {
       if (empty($definition[$required_property])) {
         throw new \InvalidArgumentException(sprintf('Missing required property %s.', $required_property));
       }
+    }
+    if (!in_array($definition['entity_type'], self::SUPPORTED_ENTITY_TYPES)) {
+      throw new \InvalidArgumentException(sprintf('Unsupported entity type %s.', $definition['entity_type']));
     }
     if (!empty($definition['data']) && !is_array($definition['data'])) {
       throw new \InvalidArgumentException('The data property must be an array.');
@@ -196,6 +206,24 @@ final class StoreOverride {
       'status' => $this->status,
       'created' => $this->created,
     ];
+  }
+
+  /**
+   * Applies the override data to the given entity.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   */
+  public function apply(ContentEntityInterface $entity) {
+    if ($this->entityType != $entity->getEntityTypeId()) {
+      throw new \InvalidArgumentException(sprintf('Unexpected entity type %s.', $entity->getEntityTypeId()));
+    }
+
+    foreach ($this->data as $field_name => $value) {
+      if ($entity->hasField($field_name)) {
+        $entity->set($field_name, $value);
+      }
+    }
   }
 
 }

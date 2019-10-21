@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_store_override\Plugin\Derivative;
 
+use Drupal\commerce_store\Entity\StoreInterface;
 use Drupal\commerce_store_override\StoreOverride;
 use Drupal\Component\Plugin\Derivative\DeriverBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -53,6 +54,9 @@ class EntityTaskDeriver extends DeriverBase implements ContainerDeriverInterface
   public function getDerivativeDefinitions($base_plugin_definition) {
     $store_storage = $this->entityTypeManager->getStorage('commerce_store');
     $stores = $store_storage->loadMultiple();
+    uasort($stores, function (StoreInterface $a, StoreInterface $b) {
+      return strnatcasecmp($a->label(), $b->label());
+    });
 
     foreach (StoreOverride::SUPPORTED_ENTITY_TYPES as $entity_type_id) {
       $this->derivatives[$entity_type_id . '.master'] = [

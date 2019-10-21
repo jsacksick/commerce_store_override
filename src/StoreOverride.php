@@ -16,7 +16,7 @@ final class StoreOverride {
    *
    * @var string[]
    */
-  const SUPPORTED_ENTITY_TYPES = ['commerce_product'];
+  const SUPPORTED_ENTITY_TYPES = ['commerce_product', 'commerce_product_variation'];
 
   /**
    * The store ID.

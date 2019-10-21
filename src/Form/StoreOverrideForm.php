@@ -85,7 +85,7 @@ class StoreOverrideForm extends EntityForm {
     $form_display = EntityFormDisplay::collectRenderDisplay($this->entity, 'edit');
     // Hide fields that shouldn't be overridden.
     // @todo Make this configurable per bundle.
-    $whitelist = ['title', 'field_brand', 'field_product_categories', 'field_address'];
+    $whitelist = ['title', 'sku', 'price', 'field_product_categories', 'field_address'];
     foreach ($form_display->getComponents() as $name => $component) {
       if (!in_array($name, $whitelist)) {
         $form_display->removeComponent($name);

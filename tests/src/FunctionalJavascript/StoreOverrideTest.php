@@ -3,6 +3,7 @@
 namespace Drupal\Tests\commerce_store_override\FunctionalJavascript;
 
 use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_product\Entity\ProductVariation;
 use Drupal\commerce_store_override\StoreOverride;
 use Drupal\Tests\commerce_product\FunctionalJavascript\ProductWebDriverTestBase;
 
@@ -44,6 +45,11 @@ class StoreOverrideTest extends ProductWebDriverTestBase {
 
     $this->repository = $this->container->get('commerce_store_override.repository');
 
+    // Shows the variation title by default, which is not needed here.
+    $product_view_display = commerce_get_entity_display('commerce_product', 'default', 'view');
+    $product_view_display->removeComponent('variations');
+    $product_view_display->save();
+
     // Assign user-friendly labels to each store.
     $this->stores[0]->set('name', 'Sweden');
     $this->stores[1]->set('name', 'Norway');
@@ -54,9 +60,20 @@ class StoreOverrideTest extends ProductWebDriverTestBase {
     // Rebuild the product local tasks.
     \Drupal::service('router.builder')->rebuild();
 
+    $variation = ProductVariation::create([
+      'type' => 'default',
+      'sku' => 'TEST',
+      'price' => [
+        'number' => '30.00',
+        'currency_code' => 'USD',
+      ],
+    ]);
+    $variation->save();
+
     $product = Product::create([
       'type' => 'default',
       'title' => 'Test (Master)',
+      'variations' => [$variation],
     ]);
     $product->save();
     $this->product = $product;
@@ -97,10 +114,22 @@ class StoreOverrideTest extends ProductWebDriverTestBase {
     $this->drupalGet($this->product->toUrl('edit-form'));
     $this->assertSession()->fieldValueEquals('title[0][value]', 'Test (Master)');
 
-    // Confirm that the override data is present on the rendered product.
+    // Override the variation as well.
+    $variation = $this->product->getDefaultVariation();
+    $this->drupalGet($variation->toUrl('edit-form'));
+    $this->getSession()->getPage()->clickLink('Finland');
+    $this->submitForm([
+      'data[price][0][number]' => '40',
+      'status' => TRUE,
+    ], 'Save');
+    $this->assertSession()->pageTextContains('Saved Test (Master).');
+
+    // Confirm that the rendered product shows overridden data.
     $this->drupalGet($this->product->toUrl('canonical'));
     $this->assertSession()->pageTextContains('Test (Finland)');
     $this->assertSession()->pageTextNotContains('Test (Master)');
+    $this->assertSession()->pageTextContains('$40');
+    $this->assertSession()->pageTextNotContains('$30');
   }
 
   /**

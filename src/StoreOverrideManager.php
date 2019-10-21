@@ -72,7 +72,7 @@ class StoreOverrideManager implements StoreOverrideManagerInterface {
   public function override(ContentEntityInterface $entity) {
     $store = $this->currentStore->getStore();
     $store_override = $this->repository->load($store, $entity);
-    if ($store_override) {
+    if ($store_override && $store_override->getStatus()) {
       $store_override->apply($entity);
     }
   }

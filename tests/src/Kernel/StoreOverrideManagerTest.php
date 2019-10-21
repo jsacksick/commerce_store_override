@@ -90,6 +90,7 @@ class StoreOverrideManagerTest extends CommerceKernelTestBase {
           'value' => 'Overridden test1',
         ],
       ],
+      'status' => TRUE,
     ];
     $store_override = StoreOverride::create($this->store, $this->product, $definition);
     $this->repository->save($store_override);
@@ -101,6 +102,7 @@ class StoreOverrideManagerTest extends CommerceKernelTestBase {
           'value' => 'Overridden test2',
         ],
       ],
+      'status' => TRUE,
     ];
     $store_override = StoreOverride::create($second_store, $this->product, $definition);
     $this->repository->save($store_override);
@@ -120,6 +122,21 @@ class StoreOverrideManagerTest extends CommerceKernelTestBase {
     $manager->override($this->product);
     // Confirm that the new default store's override was applied.
     $this->assertEquals('Overridden test2', $this->product->label());
+
+    // Confirm that the override is no longer applied if it is inactive.
+    $this->product = $this->reloadEntity($this->product);
+    $definition = [
+      'data' => [
+        'title' => [
+          'value' => 'Overridden test2',
+        ],
+      ],
+      'status' => FALSE,
+    ];
+    $store_override = StoreOverride::create($second_store, $this->product, $definition);
+    $this->repository->save($store_override);
+    $manager->override($this->product);
+    $this->assertEquals('Test', $this->product->label());
   }
 
 }

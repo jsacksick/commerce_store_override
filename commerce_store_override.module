@@ -7,12 +7,54 @@
 
 use Drupal\commerce_store\Entity\StoreInterface;
 use Drupal\commerce_store_override\StoreOverride;
+use Drupal\commerce_store_override\Form\StoreOverrideForm;
 use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_type_build().
+ */
+function commerce_store_override_entity_type_build(array &$entity_types) {
+  /** @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
+  foreach (StoreOverride::SUPPORTED_ENTITY_TYPES as $entity_type_id) {
+    $entity_type = &$entity_types[$entity_type_id];
+    if (!$entity_type->getFormClass('override')) {
+      $entity_type->setFormClass('override', StoreOverrideForm::class);
+    }
+    if (!$entity_type->hasLinkTemplate('override-form')) {
+      $path = $entity_type->getLinkTemplate('edit-form');
+      $path = str_replace('/edit', '/override/{commerce_store}', $path);
+      $entity_type->setLinkTemplate('override-form', $path);
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function commerce_store_override_commerce_store_insert(StoreInterface $store) {
+  /** @var \Drupal\Core\Routing\RouteBuilderInterface $route_builder */
+  $route_builder = \Drupal::service('router.builder');
+  $route_builder->setRebuildNeeded();
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function commerce_store_override_commerce_store_update(StoreInterface $store) {
+  if ($store->label() != $store->original->label()) {
+    /** @var \Drupal\Core\Routing\RouteBuilderInterface $route_builder */
+    $route_builder = \Drupal::service('router.builder');
+    $route_builder->setRebuildNeeded();
+  }
+}
 
 /**
  * Implements hook_ENTITY_TYPE_delete().
  */
 function commerce_store_override_commerce_store_delete(StoreInterface $store) {
+  /** @var \Drupal\Core\Routing\RouteBuilderInterface $route_builder */
+  $route_builder = \Drupal::service('router.builder');
+  $route_builder->setRebuildNeeded();
   /** @var \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository */
   $repository = \Drupal::service('commerce_store_override.repository');
   $repository->deleteMultipleByStore($store);

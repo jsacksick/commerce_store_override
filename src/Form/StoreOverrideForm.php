@@ -165,7 +165,9 @@ class StoreOverrideForm extends EntityForm {
       $data[$field_name] = $entity->get($field_name)->getValue();
       // Remove empty properties, to reduce the size of the stored value.
       foreach ($data[$field_name] as $delta => $value) {
-        $data[$field_name][$delta] = array_filter($value, 'strlen');
+        $data[$field_name][$delta] = array_filter($value, function ($property_value) {
+          return is_scalar($property_value) ? strlen($property_value) : TRUE;
+        });
       }
       // Unwrap the list if it only has a single delta.
       $keys = array_keys($data[$field_name]);

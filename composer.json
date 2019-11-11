@@ -1,0 +1,11 @@
+{
+  "name": "drupal/commerce_store_override",
+  "type": "drupal-module",
+  "description": "Provides per-store overrides of Commerce content.",
+  "homepage": "http://drupal.org/project/commerce_store_override",
+  "license": "GPL-2.0+",
+  "require": {
+    "drupal/commerce": "^2.15"
+  },
+  "minimum-stability": "dev"
+}

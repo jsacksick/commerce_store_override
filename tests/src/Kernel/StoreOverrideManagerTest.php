@@ -62,6 +62,7 @@ class StoreOverrideManagerTest extends CommerceKernelTestBase {
    */
   public function testShouldOverride() {
     $current_store = $this->container->get('commerce_store.current_store');
+    $entity_field_manager = $this->container->get('entity_field.manager');
     $route_provider = $this->container->get('router.route_provider');
     $routes = [
       'entity.commerce_product.edit_form' => FALSE,
@@ -70,7 +71,7 @@ class StoreOverrideManagerTest extends CommerceKernelTestBase {
     foreach ($routes as $route_name => $result) {
       $route = $route_provider->getRouteByName($route_name);
       $route_match = new RouteMatch($route_name, $route);
-      $manager = new StoreOverrideManager($current_store, $route_match, $this->repository);
+      $manager = new StoreOverrideManager($current_store, $route_match, $this->repository, $entity_field_manager, $this->entityTypeManager);
 
       // Confirm that an unsupported entity type can never be overridden.
       $this->assertFalse($manager->shouldOverride($this->store));
@@ -137,6 +138,27 @@ class StoreOverrideManagerTest extends CommerceKernelTestBase {
     $this->repository->save($store_override);
     $manager->override($this->product);
     $this->assertEquals('Test', $this->product->label());
+  }
+
+  /**
+   * @covers::getAllowedFieldsOverride
+   * @covers::getEnabledFieldsOverride
+   */
+  public function testAllowedAndEnabledFields() {
+    $product_type = $this->entityTypeManager->getStorage('commerce_product_type')->load('default');
+    /** @var \Drupal\commerce_store_override\StoreOverrideManagerInterface $manager */
+    $manager = $this->container->get('commerce_store_override.manager');
+    $allowed_fields = $manager->getAllowedFieldsOverride($product_type);
+    $this->assertArrayHasKey('title', $allowed_fields);
+    $this->assertArrayHasKey('body', $allowed_fields);
+
+    $enabled_fields = $manager->getEnabledFieldsOverride($product_type);
+    $this->assertEmpty($enabled_fields);
+    $product_type->setThirdPartySetting('commerce_store_override', 'fields', ['title', 'body']);
+    $product_type->save();
+    $enabled_fields = $manager->getEnabledFieldsOverride($product_type);
+    $this->assertTrue(in_array('title', $enabled_fields, TRUE));
+    $this->assertTrue(in_array('body', $enabled_fields, TRUE));
   }
 
 }

@@ -5,7 +5,7 @@ services:
 
   commerce_store_override.manager:
     class: Drupal\commerce_store_override\StoreOverrideManager
-    arguments: ['@commerce_store.current_store', '@current_route_match', '@commerce_store_override.repository']
+    arguments: ['@commerce_store.current_store', '@current_route_match', '@commerce_store_override.repository', '@entity_field.manager', '@entity_type.manager']
 
   commerce_store_override.route_subscriber:
     class: Drupal\commerce_store_override\EventSubscriber\RouteSubscriber

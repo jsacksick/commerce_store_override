@@ -1,0 +1,21 @@
+commerce_product.commerce_product_type.*.third_party.commerce_store_override:
+  type: mapping
+  label: 'Store override settings'
+  mapping:
+    fields:
+      label: 'Fields'
+      type: sequence
+      sequence:
+        type: string
+        label: 'Field name'
+
+commerce_product.commerce_product_variation_type.*.third_party.commerce_store_override:
+  type: mapping
+  label: 'Store override settings'
+  mapping:
+    fields:
+      label: 'Fields'
+      type: sequence
+      sequence:
+        type: string
+        label: 'Field name'

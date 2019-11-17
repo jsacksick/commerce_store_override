@@ -3,6 +3,7 @@
 namespace Drupal\commerce_store_override\Form;
 
 use Drupal\commerce_store_override\StoreOverride;
+use Drupal\commerce_store_override\StoreOverrideManagerInterface;
 use Drupal\commerce_store_override\StoreOverrideRepositoryInterface;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
@@ -50,16 +51,26 @@ class StoreOverrideForm extends EntityForm {
   protected $storeOverride;
 
   /**
+   * The store override manager.
+   *
+   * @var \Drupal\commerce_store_override\StoreOverrideManagerInterface
+   */
+  protected $storeOverrideManager;
+
+  /**
    * Constructs a new StoreOverrideForm object.
    *
    * @param \Drupal\commerce_store_override\StoreOverrideRepositoryInterface $repository
    *   The store override repository.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match.
+   * @param \Drupal\commerce_store_override\StoreOverrideManagerInterface $store_override_manager
+   *   The store override manager.
    */
-  public function __construct(StoreOverrideRepositoryInterface $repository, RouteMatchInterface $route_match) {
+  public function __construct(StoreOverrideRepositoryInterface $repository, RouteMatchInterface $route_match, StoreOverrideManagerInterface $store_override_manager) {
     $this->repository = $repository;
     $this->routeMatch = $route_match;
+    $this->storeOverrideManager = $store_override_manager;
   }
 
   /**
@@ -68,7 +79,8 @@ class StoreOverrideForm extends EntityForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('commerce_store_override.repository'),
-      $container->get('current_route_match')
+      $container->get('current_route_match'),
+      $container->get('commerce_store_override.manager')
     );
   }
 
@@ -81,13 +93,13 @@ class StoreOverrideForm extends EntityForm {
     if ($this->storeOverride) {
       $this->storeOverride->apply($this->entity);
     }
-
+    /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $bundle_entity */
+    $bundle_entity = $this->entityTypeManager->getStorage($this->entity->getEntityType()->getBundleEntityType())->load($this->entity->bundle());
+    $allowed_fields = $this->storeOverrideManager->getEnabledFieldsOverride($bundle_entity);
     $form_display = EntityFormDisplay::collectRenderDisplay($this->entity, 'edit');
     // Hide fields that shouldn't be overridden.
-    // @todo Make this configurable per bundle.
-    $whitelist = ['title', 'sku', 'price', 'field_product_categories', 'field_address'];
     foreach ($form_display->getComponents() as $name => $component) {
-      if (!in_array($name, $whitelist)) {
+      if (!in_array($name, $allowed_fields)) {
         $form_display->removeComponent($name);
       }
     }

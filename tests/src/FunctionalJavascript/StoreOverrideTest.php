@@ -3,6 +3,7 @@
 namespace Drupal\Tests\commerce_store_override\FunctionalJavascript;
 
 use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_product\Entity\ProductType;
 use Drupal\commerce_product\Entity\ProductVariation;
 use Drupal\commerce_store_override\StoreOverride;
 use Drupal\Tests\commerce_product\FunctionalJavascript\ProductWebDriverTestBase;
@@ -185,6 +186,32 @@ class StoreOverrideTest extends ProductWebDriverTestBase {
     $this->getSession()->getPage()->clickLink('Finland');
     $this->assertSession()->fieldValueEquals('data[title][0][value]', 'Test (Master)');
     $this->assertSession()->checkboxChecked('status');
+  }
+
+  /**
+   * Tests the override settings.
+   */
+  public function testOverrideSettings() {
+    $product_type = ProductType::load('default');
+    $this->drupalGet($product_type->toUrl('edit-form'));
+    $this->submitForm([
+      'commerce_store_override[enable]' => 1,
+      'commerce_store_override[fields][title]' => 'title',
+      'commerce_store_override[fields][body]' => 'body',
+    ], 'Save');
+    $product_type = $this->reloadEntity($product_type);
+    $enabled_fields = $product_type->getThirdPartySetting('commerce_store_override', 'fields');
+    $this->assertTrue(in_array('title', $enabled_fields, TRUE));
+    $this->assertTrue(in_array('body', $enabled_fields, TRUE));
+
+    $this->drupalGet(($product_type->toUrl('edit-form')));
+    $this->submitForm([
+      'commerce_store_override[enable]' => 0,
+    ], 'Save');
+    $product_type = $this->reloadEntity($product_type);
+    $enabled_fields = $product_type->getThirdPartySetting('commerce_store_override', 'fields');
+    $this->assertTrue(in_array('title', $enabled_fields, TRUE));
+    $this->assertEmpty($enabled_fields);
   }
 
 }
